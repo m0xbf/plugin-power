@@ -8,7 +8,7 @@
 
 ```
 ; for replace arguments
-[Arguments]
+[Args]
 EQUAL,y,z->fakeY,fakeZ
 
 ; for replace result
