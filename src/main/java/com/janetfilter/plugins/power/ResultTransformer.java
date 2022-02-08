@@ -11,10 +11,8 @@ import java.util.List;
 import static jdk.internal.org.objectweb.asm.Opcodes.*;
 
 public class ResultTransformer implements MyTransformer {
-    private final List<FilterRule> rules;
-
     public ResultTransformer(List<FilterRule> rules) {
-        this.rules = rules;
+        ResultFilter.setRules(rules);
     }
 
     @Override
@@ -24,8 +22,6 @@ public class ResultTransformer implements MyTransformer {
 
     @Override
     public byte[] transform(String className, byte[] classBytes, int order) throws Exception {
-        ResultFilter.setRules(rules);
-
         ClassReader reader = new ClassReader(classBytes);
         ClassNode node = new ClassNode(ASM5);
         reader.accept(node, 0);

@@ -5,17 +5,16 @@ import com.janetfilter.core.enums.RuleType;
 import com.janetfilter.core.models.FilterRule;
 
 import java.math.BigInteger;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class ArgsFilter {
-    private static final Map<String, BigInteger[]> cached = new ConcurrentHashMap<>();
-    private static Map<String, String> map;
+    private static Set<String> l1cached;
+    private static Map<String, BigInteger[]> l2cached;
 
     public static void setRules(List<FilterRule> rules) {
-        map = new HashMap<>();
+        l1cached = new HashSet<>();
+        l2cached = new HashMap<>();
 
         for (FilterRule rule : rules) {
             if (rule.getType() != RuleType.EQUAL) {
@@ -33,20 +32,18 @@ public class ArgsFilter {
                 continue;
             }
 
-            map.put(sections[0], sections[1]);
+            l1cached.add(Arrays.stream(sections[0].split(",")).map(s -> String.valueOf(new BigInteger(s).intValue())).collect(Collectors.joining(",")));
+
+            String[] tmp = sections[1].split(",");
+            l2cached.put(sections[0], new BigInteger[]{new BigInteger(tmp[0]), new BigInteger(tmp[1])});
         }
     }
 
     public static BigInteger[] testFilter(BigInteger x, BigInteger y, BigInteger z) {
-        String key = String.format("%s,%s", y, z);
-        String i = map.get(key);
-        if (null == i) {
-            return null;
+        if (l1cached.contains(y.intValue() + "," + z.intValue())) {
+            return l2cached.getOrDefault(y + "," + z, null);
         }
 
-        return cached.computeIfAbsent(key, s -> {
-            String[] ii = i.split(",");
-            return new BigInteger[]{new BigInteger(ii[0]), new BigInteger(ii[1])};
-        });
+        return null;
     }
 }
